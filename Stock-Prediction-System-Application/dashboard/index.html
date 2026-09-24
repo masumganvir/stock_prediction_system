@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>StockAI — Intelligent Stock Prediction System</title>
+<meta name="description" content="AI-powered stock price prediction using Multiple Linear Regression, Gradient Boosting, and Ensemble models with 19 technical indicators."/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.0.1/dist/chartjs-plugin-annotation.min.js"></script>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ─── Animated Background ─────────────────────────────── -->
+<div class="bg-canvas">
+  <div class="bg-orb orb1"></div>
+  <div class="bg-orb orb2"></div>
+  <div class="bg-orb orb3"></div>
+  <canvas id="particleCanvas"></canvas>
+</div>
+
+<!-- ─── Navigation ──────────────────────────────────────── -->
+<nav class="navbar glass">
+  <div class="nav-brand">
+    <span class="nav-icon">📈</span>
+    <span class="brand-text">Stock<span class="brand-accent">AI</span></span>
+  </div>
+  <div class="nav-links">
+    <a href="#predict" class="nav-link">Predict</a>
+    <a href="#charts"  class="nav-link">Charts</a>
+    <a href="#models"  class="nav-link">Models</a>
+    <a href="#report"  class="nav-link">Report</a>
+  </div>
+  <div class="nav-badge">
+    <span class="badge-dot"></span> Live API
+  </div>
+</nav>
+
+<!-- ─── Hero Section ────────────────────────────────────── -->
+<section class="hero" id="predict">
+  <div class="hero-content">
+    <div class="hero-badge">🤖 AI-Powered Prediction</div>
+    <h1 class="hero-title">
+      Predict Stock Prices<br/>
+      <span class="gradient-text">with Machine Learning</span>
+    </h1>
+    <p class="hero-subtitle">
+      5 ML models · 19 technical indicators · Real-time Yahoo Finance data
+    </p>
+
+    <!-- ─── Prediction Form ─────────────────────────────── -->
+    <div class="predict-card glass">
+      <div class="form-row">
+        <div class="input-group">
+          <label class="input-label">Stock Ticker</label>
+          <div class="ticker-input-wrap">
+            <span class="ticker-icon">🏷️</span>
+            <input id="tickerInput" type="text" class="ticker-input"
+                   placeholder="AAPL, MSFT, TSLA, RELIANCE.NS…"
+                   value="AAPL" maxlength="20" autocomplete="off"/>
+          </div>
+          <div class="ticker-suggestions" id="tickerSuggestions"></div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">Forecast Days</label>
+          <div class="slider-wrap">
+            <input id="daysSlider" type="range" min="7" max="180" value="30" class="slider"/>
+            <div class="slider-labels">
+              <span>7</span>
+              <span id="daysDisplay" class="slider-value">30 days</span>
+              <span>180</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="input-group">
+          <label class="input-label">History Period</label>
+          <div class="period-buttons">
+            <button class="period-btn" data-period="6mo">6M</button>
+            <button class="period-btn active" data-period="2y">2Y</button>
+            <button class="period-btn" data-period="5y">5Y</button>
+          </div>
+        </div>
+      </div>
+
+      <button id="predictBtn" class="predict-btn">
+        <span class="btn-icon">⚡</span>
+        <span class="btn-text">Run Prediction</span>
+        <div class="btn-loader" id="btnLoader"></div>
+      </button>
+
+      <!-- Quick tickers -->
+      <div class="quick-tickers">
+        <span class="quick-label">Popular:</span>
+        <button class="quick-btn" onclick="setTicker('AAPL')">AAPL</button>
+        <button class="quick-btn" onclick="setTicker('MSFT')">MSFT</button>
+        <button class="quick-btn" onclick="setTicker('TSLA')">TSLA</button>
+        <button class="quick-btn" onclick="setTicker('GOOGL')">GOOGL</button>
+        <button class="quick-btn" onclick="setTicker('NVDA')">NVDA</button>
+        <button class="quick-btn" onclick="setTicker('RELIANCE.NS')">RELIANCE</button>
+        <button class="quick-btn" onclick="setTicker('TCS.NS')">TCS</button>
+        <button class="quick-btn" onclick="setTicker('BTC-USD')">BTC</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ─── Loading Overlay ───────────────────────────────────── -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+  <div class="loading-box glass">
+    <div class="loading-ring"></div>
+    <div class="loading-steps">
+      <div class="loading-step active" id="step1">📡 Fetching market data…</div>
+      <div class="loading-step" id="step2">🔧 Engineering features…</div>
+      <div class="loading-step" id="step3">🤖 Training 5 ML models…</div>
+      <div class="loading-step" id="step4">🔮 Generating forecasts…</div>
+    </div>
+    <div class="loading-ticker" id="loadingTicker">AAPL</div>
+  </div>
+</div>
+
+<!-- ─── Results Dashboard ─────────────────────────────────── -->
+<div id="results" class="results hidden">
+
+  <!-- Stock Header -->
+  <section class="stock-header glass">
+    <div class="stock-header-left">
+      <div class="stock-logo" id="stockLogo">📊</div>
+      <div>
+        <div class="stock-name" id="stockName">—</div>
+        <div class="stock-ticker-badge" id="stockTickerBadge">—</div>
+        <div class="stock-meta" id="stockMeta">—</div>
+      </div>
+    </div>
+    <div class="stock-price-block">
+      <div class="current-price" id="currentPrice">—</div>
+      <div class="price-forecast" id="priceForecast">—</div>
+      <div class="forecast-change" id="forecastChange">—</div>
+    </div>
+  </section>
+
+  <!-- KPI Cards -->
+  <section class="kpi-row" id="kpiRow"></section>
+
+  <!-- ─── Charts Section ─────────────────────────────────── -->
+  <section id="charts" class="charts-section">
+    <div class="section-header">
+      <h2 class="section-title">📊 Price Charts & Forecast</h2>
+      <div class="chart-controls">
+        <button class="chart-ctrl-btn active" onclick="switchMainChart('forecast')">Forecast</button>
+        <button class="chart-ctrl-btn" onclick="switchMainChart('actual_vs_pred')">Actual vs Predicted</button>
+        <button class="chart-ctrl-btn" onclick="switchMainChart('residuals')">Residuals</button>
+      </div>
+    </div>
+
+    <div class="chart-card glass" id="mainChartCard">
+      <canvas id="mainChart" height="90"></canvas>
+    </div>
+
+    <div class="chart-grid">
+      <div class="chart-card glass">
+        <div class="chart-card-title">Technical Indicators</div>
+        <canvas id="technicalChart" height="200"></canvas>
+      </div>
+      <div class="chart-card glass">
+        <div class="chart-card-title">Feature Importance (GBR)</div>
+        <canvas id="featureChart" height="200"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- ─── Model Comparison ────────────────────────────────── -->
+  <section id="models" class="models-section">
+    <div class="section-header">
+      <h2 class="section-title">🤖 Model Comparison</h2>
+      <div class="best-model-badge" id="bestModelBadge">— Best Model</div>
+    </div>
+    <div class="model-cards-grid" id="modelCards"></div>
+
+    <div class="chart-card glass" style="margin-top:1.5rem">
+      <div class="chart-card-title">Model Performance Comparison</div>
+      <canvas id="modelCompareChart" height="100"></canvas>
+    </div>
+  </section>
+
+  <!-- ─── Forecast Table ──────────────────────────────────── -->
+  <section class="forecast-table-section">
+    <div class="section-header">
+      <h2 class="section-title">🔭 Day-by-Day Forecast (Ensemble)</h2>
+      <button class="export-btn" onclick="exportCSV()">⬇ Export CSV</button>
+    </div>
+    <div class="table-card glass">
+      <table class="forecast-table" id="forecastTable">
+        <thead>
+          <tr>
+            <th>Day</th><th>Date</th><th>Prediction ($)</th>
+            <th>Daily Change</th><th>Change %</th><th>Trend</th>
+          </tr>
+        </thead>
+        <tbody id="forecastTableBody"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ─── Technical Snapshot ──────────────────────────────── -->
+  <section class="snapshot-section">
+    <div class="section-header">
+      <h2 class="section-title">📡 Technical Indicator Snapshot</h2>
+    </div>
+    <div class="snapshot-grid" id="snapshotGrid"></div>
+  </section>
+
+  <!-- ─── Model Report ─────────────────────────────────────── -->
+  <section id="report" class="report-section">
+    <div class="section-header">
+      <h2 class="section-title">📄 Model Prediction Report</h2>
+      <button class="export-btn" onclick="generatePDF()">📥 Save Report</button>
+    </div>
+    <div class="report-card glass" id="reportCard"></div>
+  </section>
+
+</div>
+
+<!-- ─── Footer ───────────────────────────────────────────── -->
+<footer class="footer">
+  <p>StockAI v2.0 · Developed by <strong>Masum Ganvir</strong> · 5 ML Models & 19 Technical Indicators</p>
+  <p class="footer-disclaimer">⚠️ Educational purposes only — not financial advice</p>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
