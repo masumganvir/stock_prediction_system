@@ -119,7 +119,7 @@ stock_prediction_system/
 - **Name:** Masum Ganvir
 - **Email:** [masumganvir2006@gmail.com](mailto:masumganvir2006@gmail.com)
 - **GitHub:** [@masumganvir](https://github.com/masumganvir)
-- **Repository:** [masumganvir/stock_prediction_system](https://github.com/masumganvir/stock_prediction_system)
+- **Live:** (https://stock-prediction-system-application-1.streamlit.app/)
 
 ---
 
