@@ -42,24 +42,39 @@ An AI-powered financial market forecasting web application that predicts future 
 
 ## 💻 Quick Start & Installation
 
-### 1. Clone the Repository
-```bash
-git clone https://github.com/masumganvir/stock_prediction_system.git
-cd stock_prediction_system/Stock-Prediction-System-Application
-```
+### Option A: Launch Interactive Streamlit App (Recommended)
 
-### 2. Install Dependencies
-```bash
-pip install -r requirements.txt
-```
+[![Open in Streamlit](https://static.streamlit.io/badges/streamlit_badge_black_white.svg)](https://share.streamlit.io/deploy?repository=masumganvir/stock_prediction_system&branch=main&mainModule=streamlit_app.py)
 
-### 3. Run the Application
-```bash
-python api/app.py
-```
+1. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+2. **Run Streamlit Application:**
+   ```bash
+   streamlit run streamlit_app.py
+   ```
+3. **Open in Browser:**
+   Visit `http://localhost:8501`
 
-### 4. Open in Your Browser
-Visit: **[http://127.0.0.1:5000](http://127.0.0.1:5000)**
+---
+
+### Option B: Flask + HTML5/CSS3 Dashboard
+
+1. **Navigate to App Directory:**
+   ```bash
+   cd Stock-Prediction-System-Application
+   ```
+2. **Install Dependencies:**
+   ```bash
+   pip install -r requirements.txt
+   ```
+3. **Start Flask Server:**
+   ```bash
+   python api/app.py
+   ```
+4. **Open in Browser:**
+   Visit `http://127.0.0.1:5000`
 
 ---
 
